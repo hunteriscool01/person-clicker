@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Clicker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background: black;
+            color: green;
+        }
+        .clicker {
+            font-size: 24px;
+            padding: 20px;
+            margin: 20px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }
+        .shop {
+            margin-top: 20px;
+        }
+        .upgrade {
+            padding: 10px;
+            margin: 10px;
+            background: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Person Clicker</h1>
+    <h2>Persons: <span id="counter">0</span></h2>
+    <button class="clicker" onclick="clickPerson()">Click the Person</button>
+    
+    <div class="shop">
+        <h2>Upgrades</h2>
+        <button class="upgrade" onclick="buyUpgrade(1)">Better Clicking (x2) - Cost: <span id="cost1">10</span></button>
+        <button class="upgrade" onclick="buyUpgrade(2)">Auto Clicker (+1/sec) - Cost: <span id="cost2">50</span></button>
+    </div>
+    
+    <script>
+        let persons = 0;
+        let clickValue = 1;
+        let autoClickers = 0;
+        let upgradeCosts = [10, 50];
+
+        function clickPerson() {
+            persons += clickValue;
+            updateCounter();
+        }
+        
+        function buyUpgrade(type) {
+            if (persons >= upgradeCosts[type - 1]) {
+                persons -= upgradeCosts[type - 1];
+                if (type === 1) {
+                    clickValue *= 2;
+                    upgradeCosts[0] *= 3;
+                    document.getElementById('cost1').innerText = upgradeCosts[0];
+                } else if (type === 2) {
+                    autoClickers++;
+                    upgradeCosts[1] *= 2;
+                    document.getElementById('cost2').innerText = upgradeCosts[1];
+                }
+                updateCounter();
+            }
+        }
+        
+        function autoGenerate() {
+            persons += autoClickers;
+            updateCounter();
+        }
+        
+        function updateCounter() {
+            document.getElementById('counter').innerText = persons;
+        }
+        
+        setInterval(autoGenerate, 1000);
+    </script>
+</body>
+</html>
