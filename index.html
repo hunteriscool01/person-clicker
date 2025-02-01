@@ -11,6 +11,7 @@
             margin: 20px;
             background: black;
             color: green;
+            user-select: none;
         }
         .clicker {
             display: block;
@@ -23,6 +24,7 @@
             cursor: pointer;
             touch-action: manipulation;
             transition: transform 0.1s ease-in-out;
+            user-select: none;
         }
         .clicker:active {
             transform: scale(0.9);
@@ -39,13 +41,17 @@
             border-radius: 5px;
             cursor: pointer;
             touch-action: manipulation;
+            user-select: none;
+        }
+        h1, h2, span, button {
+            user-select: none;
         }
     </style>
 </head>
 <body>
     <h1>Person Clicker</h1>
     <h2>Persons: <span id="counter">0</span></h2>
-    <button class="clicker" onclick="clickPerson()"></button>
+    <button class="clicker" id="clickerButton" onclick="clickPerson()"></button>
     
     <div class="shop">
         <h2>Upgrades</h2>
@@ -62,6 +68,15 @@
         function clickPerson() {
             persons += clickValue;
             updateCounter();
+            animateClick();
+        }
+        
+        function animateClick() {
+            const button = document.getElementById('clickerButton');
+            button.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 100);
         }
         
         function buyUpgrade(type) {
