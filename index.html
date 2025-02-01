@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Person Clicker</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,10 +47,15 @@
         h1, h2, span, button {
             user-select: none;
         }
+        #leaderboard {
+            margin-top: 20px;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <h1>Person Clicker</h1>
+    <h2 id="username">Not Logged In</h2>
     <h2>Persons: <span id="counter">0</span></h2>
     <button class="clicker" id="clickerButton" onclick="clickPerson()"></button>
     
@@ -58,17 +64,32 @@
         <button class="upgrade" onclick="buyUpgrade(1)">Better Clicking (x2) - Cost: <span id="cost1">10</span></button>
         <button class="upgrade" onclick="buyUpgrade(2)">Auto Clicker (+1/sec) - Cost: <span id="cost2">50</span></button>
     </div>
+
+    <h2>Leaderboard</h2>
+    <ul id="leaderboard"></ul>
+
+    <div id="g_id_onload"
+        data-client_id="YOUR_GOOGLE_CLIENT_ID"
+        data-callback="handleCredentialResponse"
+        data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
     
     <script>
-        let persons = 0;
+        let persons = parseInt(localStorage.getItem("persons")) || 0;
         let clickValue = 1;
         let autoClickers = 0;
         let upgradeCosts = [10, 50];
-
+        let playerName = localStorage.getItem("playerName") || "Guest";
+        updateCounter();
+        updateLeaderboard();
+        
         function clickPerson() {
             persons += clickValue;
+            localStorage.setItem("persons", persons);
             updateCounter();
             animateClick();
+            saveScore();
         }
         
         function animateClick() {
@@ -91,13 +112,17 @@
                     upgradeCosts[1] *= 2;
                     document.getElementById('cost2').innerText = upgradeCosts[1];
                 }
+                localStorage.setItem("persons", persons);
                 updateCounter();
+                saveScore();
             }
         }
         
         function autoGenerate() {
             persons += autoClickers;
+            localStorage.setItem("persons", persons);
             updateCounter();
+            saveScore();
         }
         
         function updateCounter() {
@@ -105,6 +130,33 @@
         }
         
         setInterval(autoGenerate, 1000);
+        
+        function handleCredentialResponse(response) {
+            const data = JSON.parse(atob(response.credential.split('.')[1]));
+            playerName = data.name;
+            localStorage.setItem("playerName", playerName);
+            document.getElementById("username").innerText = `Welcome, ${playerName}`;
+            saveScore();
+        }
+        
+        function saveScore() {
+            let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            let existingPlayer = leaderboard.find(p => p.name === playerName);
+            if (existingPlayer) {
+                existingPlayer.score = Math.max(existingPlayer.score, persons);
+            } else {
+                leaderboard.push({ name: playerName, score: persons });
+            }
+            leaderboard.sort((a, b) => b.score - a.score);
+            localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+            updateLeaderboard();
+        }
+        
+        function updateLeaderboard() {
+            let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            const leaderboardElement = document.getElementById("leaderboard");
+            leaderboardElement.innerHTML = leaderboard.map(s => `<li>${s.name}: ${s.score}</li>`).join("\n");
+        }
     </script>
 </body>
 </html>
