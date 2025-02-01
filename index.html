@@ -18,7 +18,6 @@
             width: 150px;
             height: 150px;
             margin: 20px auto;
-            background: url('CoreyW.png') no-repeat center center;
             background-size: cover;
             border: none;
             cursor: pointer;
@@ -29,10 +28,10 @@
         .clicker:active {
             transform: scale(0.9);
         }
-        .shop {
+        .shop, .game-screen, .start-screen {
             margin-top: 20px;
         }
-        .upgrade {
+        .upgrade, .character-btn {
             padding: 10px;
             margin: 10px;
             background: #008CBA;
@@ -46,40 +45,57 @@
         h1, h2, span, button {
             user-select: none;
         }
-        #leaderboard {
-            margin-top: 20px;
-            color: white;
-        }
     </style>
 </head>
 <body>
-    <h1>Person Clicker</h1>
-    <h2>Persons: <span id="counter">0</span></h2>
-    <button class="clicker" id="clickerButton" onclick="clickPerson()"></button>
-    
-    <div class="shop">
-        <h2>Upgrades</h2>
-        <button class="upgrade" onclick="buyUpgrade(1)">Better Clicking (x2) - Cost: <span id="cost1">10</span></button>
-        <button class="upgrade" onclick="buyUpgrade(2)">Auto Clicker (+1/sec) - Cost: <span id="cost2">50</span></button>
+    <div id="startScreen" class="start-screen">
+        <h1>Choose Your Character</h1>
+        <button class="character-btn" onclick="selectCharacter('CoreyW.png')">
+            <img src="CoreyW.png" alt="CoreyW" width="100">
+        </button>
+        <button class="character-btn" onclick="selectCharacter('Cobe.png')">
+            <img src="Cobe.png" alt="Cobe" width="100">
+        </button>
     </div>
-
-    <h2>Leaderboard</h2>
-    <ul id="leaderboard"></ul>
+    
+    <div id="gameScreen" class="game-screen" style="display: none;">
+        <h1>Person Clicker</h1>
+        <button onclick="goBack()" class="upgrade">Change Character</button>
+        <h2>Persons: <span id="counter">0</span></h2>
+        <button class="clicker" id="clickerButton" onclick="clickPerson()"></button>
+        
+        <div class="shop">
+            <h2>Upgrades</h2>
+            <button class="upgrade" onclick="buyUpgrade(1)">Better Clicking (x2) - Cost: <span id="cost1">10</span></button>
+            <button class="upgrade" onclick="buyUpgrade(2)">Auto Clicker (+1/sec) - Cost: <span id="cost2">50</span></button>
+        </div>
+    </div>
     
     <script>
         let persons = parseInt(localStorage.getItem("persons")) || 0;
         let clickValue = 1;
         let autoClickers = 0;
         let upgradeCosts = [10, 50];
-        updateCounter();
-        updateLeaderboard();
+        let selectedCharacter = localStorage.getItem("selectedCharacter") || "CoreyW.png";
+        
+        function selectCharacter(character) {
+            localStorage.setItem("selectedCharacter", character);
+            document.getElementById("clickerButton").style.backgroundImage = `url('${character}')`;
+            document.getElementById("startScreen").style.display = "none";
+            document.getElementById("gameScreen").style.display = "block";
+            updateCounter();
+        }
+        
+        function goBack() {
+            document.getElementById("startScreen").style.display = "block";
+            document.getElementById("gameScreen").style.display = "none";
+        }
         
         function clickPerson() {
             persons += clickValue;
             localStorage.setItem("persons", persons);
             updateCounter();
             animateClick();
-            saveScore();
         }
         
         function animateClick() {
@@ -104,7 +120,6 @@
                 }
                 localStorage.setItem("persons", persons);
                 updateCounter();
-                saveScore();
             }
         }
         
@@ -112,7 +127,6 @@
             persons += autoClickers;
             localStorage.setItem("persons", persons);
             updateCounter();
-            saveScore();
         }
         
         function updateCounter() {
@@ -121,20 +135,12 @@
         
         setInterval(autoGenerate, 1000);
         
-        function saveScore() {
-            let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-            leaderboard.push({ score: persons, timestamp: Date.now() });
-            leaderboard.sort((a, b) => b.score - a.score);
-            leaderboard = leaderboard.slice(0, 10); // Keep top 10 scores
-            localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
-            updateLeaderboard();
-        }
-        
-        function updateLeaderboard() {
-            let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-            const leaderboardElement = document.getElementById("leaderboard");
-            leaderboardElement.innerHTML = leaderboard.map(s => `<li>${s.score}</li>`).join("\n");
-        }
+        // Load character if already chosen
+        window.onload = function() {
+            if (localStorage.getItem("selectedCharacter")) {
+                selectCharacter(localStorage.getItem("selectedCharacter"));
+            }
+        };
     </script>
 </body>
 </html>
