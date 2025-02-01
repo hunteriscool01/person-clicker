@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Person Clicker</title>
     <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
             background: black;
             color: green;
-            user-select: none;
         }
         .clicker {
             display: block;
@@ -23,7 +28,6 @@
             cursor: pointer;
             touch-action: manipulation;
             transition: transform 0.1s ease-in-out;
-            user-select: none;
         }
         .clicker:active {
             transform: scale(0.9);
@@ -40,7 +44,6 @@
             border-radius: 5px;
             cursor: pointer;
             touch-action: manipulation;
-            user-select: none;
         }
         h1, h2, span, button {
             user-select: none;
