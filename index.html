@@ -11,17 +11,23 @@
             margin: 20px;
             background: black;
             color: green;
+            user-select: none;
         }
         .clicker {
-            font-size: 24px;
-            padding: 20px;
-            margin: 20px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
+            display: block;
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            background: url('CoreyW.png') no-repeat center center;
+            background-size: cover;
             border: none;
-            border-radius: 10px;
+            cursor: pointer;
             touch-action: manipulation;
+            transition: transform 0.1s ease-in-out;
+            user-select: none;
+        }
+        .clicker:active {
+            transform: scale(0.9);
         }
         .shop {
             margin-top: 20px;
@@ -35,13 +41,17 @@
             border-radius: 5px;
             cursor: pointer;
             touch-action: manipulation;
+            user-select: none;
+        }
+        h1, h2, span, button {
+            user-select: none;
         }
     </style>
 </head>
 <body>
     <h1>Person Clicker</h1>
     <h2>Persons: <span id="counter">0</span></h2>
-    <button class="clicker" onclick="clickPerson()">Click the Person</button>
+    <button class="clicker" id="clickerButton" onclick="clickPerson()"></button>
     
     <div class="shop">
         <h2>Upgrades</h2>
@@ -58,6 +68,15 @@
         function clickPerson() {
             persons += clickValue;
             updateCounter();
+            animateClick();
+        }
+        
+        function animateClick() {
+            const button = document.getElementById('clickerButton');
+            button.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 100);
         }
         
         function buyUpgrade(type) {
