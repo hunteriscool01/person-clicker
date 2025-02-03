@@ -23,11 +23,14 @@
             width: 150px;
             height: 150px;
             margin: 20px auto;
-            background-size: cover;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
             border: none;
             cursor: pointer;
             touch-action: manipulation;
             transition: transform 0.1s ease-in-out;
+            background-color: transparent; /* Ensure background is transparent */
         }
         .clicker:active {
             transform: scale(0.9);
@@ -54,10 +57,16 @@
     <div id="startScreen" class="start-screen">
         <h1>Choose Your Character</h1>
         <button class="character-btn" onclick="selectCharacter('CoreyW.png')">
-            <img src="CoreyW.png" alt="CoreyW" width="100">
+            <img src="CoreyW.png" alt="CoreyW" style="width: 100px; height: 100px; object-fit: contain;">
         </button>
         <button class="character-btn" onclick="selectCharacter('Cobe.png')">
-            <img src="Cobe.png" alt="Cobe" width="100">
+            <img src="Cobe.png" alt="Cobe" style="width: 100px; height: 100px; object-fit: contain;">
+        </button>
+        <button class="character-btn" onclick="selectCharacter('george.png')">
+            <img src="george.png" alt="george" style="width: 100px; height: 100px; object-fit: contain; background-color: transparent;">
+        </button>
+        <button class="character-btn" onclick="selectCharacter('oliver.png')">
+            <img src="oliver.png" alt="oliver" style="width: 100px; height: 100px; object-fit: contain;">
         </button>
     </div>
     
