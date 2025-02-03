@@ -76,9 +76,9 @@
     
     <script>
         let persons = parseInt(localStorage.getItem("persons")) || 0;
-        let clickValue = 1;
-        let autoClickers = 0;
-        let upgradeCosts = [10, 50];
+        let clickValue = parseInt(localStorage.getItem("clickValue")) || 1;
+        let autoClickers = parseInt(localStorage.getItem("autoClickers")) || 0;
+        let upgradeCosts = JSON.parse(localStorage.getItem("upgradeCosts")) || [10, 50];
         let selectedCharacter = localStorage.getItem("selectedCharacter") || "CoreyW.png";
         
         function selectCharacter(character) {
@@ -121,7 +121,11 @@
                     upgradeCosts[1] *= 2;
                     document.getElementById('cost2').innerText = upgradeCosts[1];
                 }
+                // Save all upgrade-related values
                 localStorage.setItem("persons", persons);
+                localStorage.setItem("clickValue", clickValue);
+                localStorage.setItem("autoClickers", autoClickers);
+                localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
                 updateCounter();
             }
         }
@@ -143,6 +147,9 @@
             if (localStorage.getItem("selectedCharacter")) {
                 selectCharacter(localStorage.getItem("selectedCharacter"));
             }
+            // Update the displayed costs
+            document.getElementById('cost1').innerText = upgradeCosts[0];
+            document.getElementById('cost2').innerText = upgradeCosts[1];
         };
     </script>
 </body>
