@@ -93,7 +93,7 @@
     </div>
     
     <div id="gameScreen" class="game-screen" style="display: none;">
-        <h1>Person Clicker</h1>
+        <h1>Person Clicker - <span id="playerNameDisplay"></span></h1>
         <button onclick="goBack()" class="upgrade">Change Character</button>
         <h2>Persons: <span id="counter">0</span></h2>
         <button class="clicker" id="clickerButton" onclick="clickPerson()"></button>
@@ -101,7 +101,7 @@
         <div class="shop">
             <h2>Upgrades</h2>
             <button class="upgrade" onclick="buyUpgrade(1)">Better Clicking (x2) - Cost: <span id="cost1">10</span></button>
-            <button class="upgrade" onclick="buyUpgrade(2)">Auto Clicker (+1/sec) - Cost: <span id="cost2">50</span></button>
+            <button class="upgrade" onclick="buyUpgrade(2)">Auto Clicker (+1/sec) - Cost: <span id="cost2">25</span></button>
         </div>
         
         <div class="leaderboard">
@@ -127,7 +127,8 @@
         let persons = 0;
         let clickValue = 1;
         let autoClickers = 0;
-        let upgradeCosts = [10, 50];
+        let autoClickValue = 1; // New variable for autoclicker value
+        let upgradeCosts = [10, 25];
         let selectedCharacter = 'CoreyW.png';
         let playerName = null;
 
@@ -147,7 +148,8 @@
             persons = parseInt(localStorage.getItem("persons")) || 0;
             clickValue = parseInt(localStorage.getItem("clickValue")) || 1;
             autoClickers = parseInt(localStorage.getItem("autoClickers")) || 0;
-            upgradeCosts = JSON.parse(localStorage.getItem("upgradeCosts")) || [10, 50];
+            autoClickValue = parseInt(localStorage.getItem("autoClickValue")) || 1;
+            upgradeCosts = JSON.parse(localStorage.getItem("upgradeCosts")) || [10, 25];
             selectedCharacter = localStorage.getItem("selectedCharacter") || "CoreyW.png";
 
             // Update display
@@ -170,6 +172,7 @@
             document.getElementById("clickerButton").style.backgroundImage = `url('${character}')`;
             document.getElementById("startScreen").style.display = "none";
             document.getElementById("gameScreen").style.display = "block";
+            document.getElementById("playerNameDisplay").textContent = playerName; // Add this line
             updateCounter();
         }
         
@@ -205,6 +208,7 @@
                     document.getElementById('cost1').innerText = upgradeCosts[0];
                 } else if (type === 2) {
                     autoClickers++;
+                    autoClickValue *= 2; // Double the autoclicker value
                     upgradeCosts[1] *= 2;
                     document.getElementById('cost2').innerText = upgradeCosts[1];
                 }
@@ -212,13 +216,14 @@
                 localStorage.setItem("persons", persons);
                 localStorage.setItem("clickValue", clickValue);
                 localStorage.setItem("autoClickers", autoClickers);
+                localStorage.setItem("autoClickValue", autoClickValue);
                 localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
                 updateCounter();
             }
         }
         
         function autoGenerate() {
-            persons += autoClickers;
+            persons += (autoClickers * autoClickValue); // Use autoClickValue in calculation
             localStorage.setItem("persons", persons);
             updateCounter();
         }
