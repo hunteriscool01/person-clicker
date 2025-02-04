@@ -301,15 +301,13 @@
                 }
 
                 // First check if player exists
-                const { data: existingScore } = await supabaseClient
+                const { data: existingPlayer, error: fetchError } = await supabaseClient
                     .from('leaderboard')
-                    .select('score')
-                    .eq('player_name', playerName)
-                    .single();
+                    .select('*')
+                    .eq('player_name', playerName);
 
-                if (existingScore && existingScore.score >= persons) {
-                    // Don't update if existing score is higher
-                    return;
+                if (fetchError) {
+                    throw fetchError;
                 }
 
                 const scoreData = {
@@ -318,19 +316,27 @@
                     character: selectedCharacter
                 };
 
-                // Insert or update score
-                const { data, error } = await supabaseClient
-                    .from('leaderboard')
-                    .upsert(scoreData, { 
-                        onConflict: 'player_name'
-                    });
-
-                if (error) {
-                    console.error('Error saving score to Supabase:', error);
-                    throw error;
+                let result;
+                if (existingPlayer && existingPlayer.length > 0) {
+                    // Update existing player if new score is higher
+                    if (existingPlayer[0].score < persons) {
+                        result = await supabaseClient
+                            .from('leaderboard')
+                            .update(scoreData)
+                            .eq('player_name', playerName);
+                    }
+                } else {
+                    // Insert new player
+                    result = await supabaseClient
+                        .from('leaderboard')
+                        .insert(scoreData);
                 }
 
-                console.log('Score saved successfully:', data);
+                if (result && result.error) {
+                    throw result.error;
+                }
+
+                console.log('Score saved successfully');
                 updateLeaderboard();
             } catch (error) {
                 console.error('Error in saveScore:', error);
