@@ -68,7 +68,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="startScreen" class="start-screen">
+    <div id="nameScreen" class="start-screen">
+        <h1>Welcome to Person Clicker</h1>
+        <div style="margin: 20px;">
+            <input type="text" id="playerNameInput" placeholder="Enter your name" style="padding: 10px; margin: 10px; background: #003300; color: #00ff00; border: 1px solid #00ff00;">
+            <button class="upgrade" onclick="setPlayerName()">Start Game</button>
+        </div>
+    </div>
+
+    <div id="startScreen" class="start-screen" style="display: none;">
         <h1>Choose Your Character</h1>
         <button class="character-btn" onclick="selectCharacter('CoreyW.png')">
             <img src="CoreyW.png" alt="CoreyW" style="width: 100px; height: 100px; object-fit: contain;">
@@ -124,13 +132,23 @@
         let playerName = null;
 
         window.onload = function() {
+            // Check if player name exists
+            playerName = localStorage.getItem("playerName");
+            if (!playerName) {
+                document.getElementById("nameScreen").style.display = "block";
+                document.getElementById("startScreen").style.display = "none";
+                document.getElementById("gameScreen").style.display = "none";
+            } else {
+                document.getElementById("nameScreen").style.display = "none";
+                document.getElementById("startScreen").style.display = "block";
+            }
+
             // Load saved values from localStorage
             persons = parseInt(localStorage.getItem("persons")) || 0;
             clickValue = parseInt(localStorage.getItem("clickValue")) || 1;
             autoClickers = parseInt(localStorage.getItem("autoClickers")) || 0;
             upgradeCosts = JSON.parse(localStorage.getItem("upgradeCosts")) || [10, 50];
             selectedCharacter = localStorage.getItem("selectedCharacter") || "CoreyW.png";
-            playerName = localStorage.getItem("playerName");
 
             // Update display
             updateCounter();
@@ -252,16 +270,24 @@
             }
         }
 
+        function setPlayerName() {
+            const nameInput = document.getElementById("playerNameInput").value.trim();
+            if (nameInput.length < 2) {
+                alert("Please enter a valid name (at least 2 characters)");
+                return;
+            }
+
+            playerName = nameInput;
+            localStorage.setItem("playerName", playerName);
+            document.getElementById("nameScreen").style.display = "none";
+            document.getElementById("startScreen").style.display = "block";
+        }
+
         async function saveScore() {
             console.log('Attempting to save score...');
             if (!playerName) {
-                playerName = prompt('Enter your name for the leaderboard:');
-                if (playerName) {
-                    localStorage.setItem("playerName", playerName);
-                } else {
-                    console.log('Player cancelled name input');
-                    return;
-                }
+                console.error('No player name available');
+                return;
             }
 
             try {
@@ -278,7 +304,10 @@
 
                 const { data, error } = await supabaseClient
                     .from('leaderboard')
-                    .upsert([scoreData]);
+                    .upsert([scoreData], {
+                        onConflict: 'player_name',
+                        ignoreDuplicates: false
+                    });
 
                 if (error) {
                     console.error('Error saving score to Supabase:', error);
