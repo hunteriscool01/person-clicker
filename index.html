@@ -300,47 +300,36 @@
                     throw new Error('Supabase client not initialized');
                 }
 
-                // First check if player exists
-                const { data: existingPlayer, error: fetchError } = await supabaseClient
+                // Upsert approach - will either insert or update based on player_name
+                const { error } = await supabaseClient
                     .from('leaderboard')
-                    .select('*')
-                    .eq('player_name', playerName);
+                    .upsert(
+                        {
+                            player_name: playerName,
+                            score: persons,
+                            character: selectedCharacter,
+                            updated_at: new Date().toISOString()
+                        },
+                        {
+                            onConflict: 'player_name',
+                            ignoreDuplicates: false
+                        }
+                    );
 
-                if (fetchError) {
-                    throw fetchError;
-                }
-
-                const scoreData = {
-                    player_name: playerName,
-                    score: persons,
-                    character: selectedCharacter
-                };
-
-                let result;
-                if (existingPlayer && existingPlayer.length > 0) {
-                    // Update existing player if new score is higher
-                    if (existingPlayer[0].score < persons) {
-                        result = await supabaseClient
-                            .from('leaderboard')
-                            .update(scoreData)
-                            .eq('player_name', playerName);
-                    }
-                } else {
-                    // Insert new player
-                    result = await supabaseClient
-                        .from('leaderboard')
-                        .insert(scoreData);
-                }
-
-                if (result && result.error) {
-                    throw result.error;
+                if (error) {
+                    throw error;
                 }
 
                 console.log('Score saved successfully');
-                updateLeaderboard();
+                await updateLeaderboard();
             } catch (error) {
                 console.error('Error in saveScore:', error);
-                alert('Failed to save score. Check console for details.');
+                // More user-friendly error message
+                if (error.code === '42501') {
+                    console.error('Permission denied: Unable to save score');
+                } else {
+                    console.error('Failed to save score:', error.message);
+                }
             }
         }
     </script>
