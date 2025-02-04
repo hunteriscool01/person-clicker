@@ -300,18 +300,29 @@
                     throw new Error('Supabase client not initialized');
                 }
 
+                // First check if player exists
+                const { data: existingScore } = await supabaseClient
+                    .from('leaderboard')
+                    .select('score')
+                    .eq('player_name', playerName)
+                    .single();
+
+                if (existingScore && existingScore.score >= persons) {
+                    // Don't update if existing score is higher
+                    return;
+                }
+
                 const scoreData = {
                     player_name: playerName,
                     score: persons,
                     character: selectedCharacter
                 };
-                console.log('Attempting to save score data:', scoreData);
 
+                // Insert or update score
                 const { data, error } = await supabaseClient
                     .from('leaderboard')
-                    .upsert([scoreData], {
-                        onConflict: 'player_name',
-                        ignoreDuplicates: false
+                    .upsert(scoreData, { 
+                        onConflict: 'player_name'
                     });
 
                 if (error) {
